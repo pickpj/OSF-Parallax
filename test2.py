@@ -71,6 +71,7 @@ def tracking(task, mainapp):
         ret, frame = input_reader.read()
         try:
             faces, duration = tracker.predict(frame)
+            origin_offset = (0,0,0)
             for face_num, f in enumerate(faces):
                 f = copy.copy(f)
                 f.id += args.face_id_offset
@@ -94,10 +95,13 @@ def tracking(task, mainapp):
                             cv2.circle(frame, (y, x), 1, color, -1)
                 x, y = f.lms[27][:2]
                 eyedelta = np.linalg.norm(f.lms[36][:2]-f.lms[45][:2])
-                # task.camera.setPos((20+eyedelta/10, (312.5 - y)/40 +20,(500-x)/40))
-                # task.camera.lookAt((0, 0,5))
+                task.camera.setPos((20+eyedelta/10, (312.5 - y)/40 +20,(500-x)/40))
+                task.camera.lookAt((0, 0,5))
+                # task.camera.lookAt((20, 30,5))
                 # print(f.lms[36][:2])
-                print(eyedelta)
+                # print(eyedelta)
+                print("x:",20+eyedelta/10)      #25-37
+                print("y:",(312.5 - y)/40 +20)  #15-25
             if args.visualize != 0:
                 cv2.imshow('OpenSeeFace Visualization', frame)
                 if cv2.waitKey(1) & 0xFF == ord('q'):
@@ -121,9 +125,9 @@ class MyApp(ShowBase):
         # props.set_fullscreen(True)
         props.setOrigin(0, 0)
         self.win.requestProperties(props)
-        self.obj = self.loader.loadModel("/home/blop/Downloads/hobb/blender/space.gltf", noCache=True)
+        self.obj = self.loader.loadModel("space.gltf", noCache=True)
         self.obj.reparentTo(self.render)
-        self.obj.setScale(0.1, 0.1, 0.1)
+        self.obj.setScale(0.2, 0.2, 0.2)
         self.obj.setPos(-8, 42, 0)
         self.pandaActor = Actor("models/panda-model", {"walk": "models/panda-walk4"})
         self.pandaActor.setScale(0.005, 0.005, 0.005)
