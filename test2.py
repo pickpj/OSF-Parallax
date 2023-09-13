@@ -60,18 +60,21 @@ try:
 except:
     print("ded")
     exit
+
 from direct.showbase.ShowBase import ShowBase
 from direct.actor.Actor import Actor
 from direct.interval.IntervalGlobal import Sequence
 from panda3d.core import Point3, WindowProperties
 from direct.task import Task, TaskManagerGlobal
 
-def tracking(task, mainapp):
+def tracking(mainapp, task):
     if input_reader.is_open():
         ret, frame = input_reader.read()
         try:
             faces, duration = tracker.predict(frame)
             origin_offset = (0,0,0)
+            orientation_right=90
+            radius = 20
             for face_num, f in enumerate(faces):
                 f = copy.copy(f)
                 f.id += args.face_id_offset
@@ -95,11 +98,16 @@ def tracking(task, mainapp):
                             cv2.circle(frame, (y, x), 1, color, -1)
                 x, y = f.lms[27][:2]
                 eyedelta = np.linalg.norm(f.lms[36][:2]-f.lms[45][:2])
-                task.camera.setPos((20+eyedelta/10, (312.5 - y)/40 +20,(500-x)/40))
-                task.camera.lookAt((0, 0,5))
-                # task.camera.lookAt((20, 30,5))
+
+                forback = eyedelta/10
+                leftright = (312.5 -y)/40
+
+                mainapp.cam.setPos((20+eyedelta/10, (312.5 - y)/40 +20,(500-x)/40))
+                mainapp.cam.lookAt((0, 35,5))
+                mainapp.cam.node().getLens().setFov(eyedelta/10+100)
+                # mainapp.camera.lookAt((20, 30,5))
                 # print(f.lms[36][:2])
-                # print(eyedelta)
+                print(eyedelta)
                 print("x:",20+eyedelta/10)      #25-37
                 print("y:",(312.5 - y)/40 +20)  #15-25
             if args.visualize != 0:
